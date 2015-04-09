@@ -7,6 +7,9 @@ typedef struct gs_msg {
   void *data;
 } gs_msg;
 
+struct ttt{
+};
+
 typedef struct gs_ctx {
     int id;
     const char *name;

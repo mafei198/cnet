@@ -9,7 +9,7 @@
 #ifdef LIBCORO
 #include "coro.h"
 #else
-#include "task.h"
+#include "pure_libtask/task.h"
 typedef Task coro_context;
 #endif
 
