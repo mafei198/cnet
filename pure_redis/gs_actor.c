@@ -27,16 +27,14 @@ gs_ctx *gs_ctx_by_name(const char *name) {
 
 void callback(void *arg) {
     gs_ctx *ctx = arg;
-    while (1) {
-        gs_msg *msg = ctx->current_msg;
-        if (msg) {
-            void *data = ctx->cb(ctx, msg);
-            if (msg->type == MSG_TYPE_CALL) {
-                gs_actor_send_msg(ctx->name, msg->from, data, MSG_TYPE_REPLY);
-            }
+    gs_msg *msg = ctx->current_msg;
+    if (msg) {
+        void *data = ctx->cb(ctx, msg);
+        if (msg->type == MSG_TYPE_CALL) {
+            gs_actor_send_msg(ctx->name, msg->from, data, MSG_TYPE_REPLY);
         }
-        gs_coro_transfer(ctx->corotine, ctx->main_coroutine);
     }
+    gs_coro_transfer(ctx->corotine, ctx->main_coroutine);
 }
 
 gs_ctx *gs_actor_create(const char *name, void*(* cb)(gs_ctx *, gs_msg *)) {
