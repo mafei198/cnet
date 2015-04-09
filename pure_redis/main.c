@@ -9,7 +9,7 @@
 
 redisClient *sharedRDB;
 
-coro_context *mainCtx, *workerCtx;
+coro_context mainCtx, workerCtx;
 
 pthread_cond_t global_queue_ready = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t global_queue_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -20,7 +20,7 @@ void gs_notify_global_queue()
 }
 
 void *worker(){
-    coro_context *main_coroutine = gs_coro_create(NULL, NULL, 1024);
+    coro_context main_coroutine = gs_coro_create(NULL, NULL, 1024);
     gs_ctx *ctx;
     for(;;) {
         pthread_mutex_lock(&global_queue_lock);

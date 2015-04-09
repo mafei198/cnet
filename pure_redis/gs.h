@@ -22,8 +22,8 @@ typedef struct gs_ctx {
     gs_msg *queue;
     gs_msg *current_msg;
     struct gs_ctx *next;
-    coro_context *main_coroutine;
-    coro_context *corotine;
+    coro_context main_coroutine;
+    coro_context corotine;
 } gs_ctx;
 
 typedef void *(*gs_cb)(struct gs_ctx *ctx, gs_msg *msg);
