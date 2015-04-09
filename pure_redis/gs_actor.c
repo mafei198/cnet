@@ -33,7 +33,11 @@ void callback(void *arg) {
         if (msg->type == MSG_TYPE_CALL) {
             gs_actor_send_msg(ctx->name, msg->from, data, MSG_TYPE_REPLY);
         }
-        gs_coro_transfer(ctx->corotine, ctx->main_coroutine);
+#ifdef LIBCORO
+        coro_transfer(&ctx->corotine, &ctx->main_coroutine);
+#elif LIBTASK
+        contextswitch(ctx->corotine, ctx->main_coroutine);
+#endif
     }
 }
 
@@ -79,7 +83,11 @@ gs_msg *gs_actor_send_msg(const char *from, const char *to, void *data, char typ
 void *gs_actor_call(gs_ctx *ctx, const char *target, void *data) {
     gs_actor_send_msg(ctx->name, target, data, MSG_TYPE_CALL);
     ctx->status = CTX_STATUS_WAIT_REPLY;
-    gs_coro_transfer(ctx->corotine, ctx->main_coroutine);
+#ifdef LIBCORO
+        coro_transfer(&ctx->corotine, &ctx->main_coroutine);
+#elif LIBTASK
+        contextswitch(ctx->corotine, ctx->main_coroutine);
+#endif
     return ctx->current_msg->data;
 }
 
@@ -93,7 +101,11 @@ void gs_actor_handle_msg(gs_ctx *ctx) {
     
     if (msg) {
         ctx->current_msg = msg;
-        gs_coro_transfer(ctx->main_coroutine, ctx->corotine);
+#ifdef LIBCORO
+        coro_transfer(&ctx->main_coroutine, &ctx->corotine);
+#elif LIBTASK
+        contextswitch(ctx->main_coroutine, ctx->corotine);
+#endif
     }
     free(msg);
     ctx->current_msg = NULL;

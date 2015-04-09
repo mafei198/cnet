@@ -9,7 +9,11 @@
 
 redisClient *sharedRDB;
 
+#ifdef LIBTASK
+Task *mainCtx, *workerCtx;
+#elif LIBCORO
 coro_context mainCtx, workerCtx;
+#endif
 
 pthread_cond_t global_queue_ready = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t global_queue_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -20,7 +24,14 @@ void gs_notify_global_queue()
 }
 
 void *worker(){
-    coro_context main_coroutine = gs_coro_create(NULL, NULL, 1024);
+#ifdef LIBTASK
+    Task *main_coroutine = gs_coro_create(NULL, NULL, 1024);
+#elif LIBCORO
+    struct coro_stack stack;
+    coro_stack_alloc(&stack, 1024);
+    coro_context main_coroutine;
+    coro_create(&main_coroutine, NULL, NULL, stack.sptr, stack.ssze);
+#endif
     gs_ctx *ctx;
     for(;;) {
         pthread_mutex_lock(&global_queue_lock);
@@ -101,7 +112,7 @@ void worker_coro(void *arg)
 //        gs_coro_transfer(workerCtx, mainCtx);
 //    }
     printf("hello from worker!\n");
-    gs_coro_transfer(workerCtx, mainCtx);
+//    gs_coro_transfer(workerCtx, mainCtx);
 }
 
 int main (int argc, char const* argv[])
