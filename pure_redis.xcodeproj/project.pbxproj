@@ -375,8 +375,8 @@
 				GCC_VERSION = "";
 				OTHER_CFLAGS = (
 					"-DCORO_PTHREAD",
-					"-DLIBTASK_",
-					"-DLIBCORO",
+					"-DLIBTASK",
+					"-DLIBCORO_",
 				);
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -389,8 +389,8 @@
 				GCC_VERSION = "";
 				OTHER_CFLAGS = (
 					"-DCORO_PTHREAD",
-					"-DLIBTASK_",
-					"-DLIBCORO",
+					"-DLIBTASK",
+					"-DLIBCORO_",
 				);
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
