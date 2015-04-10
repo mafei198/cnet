@@ -39,6 +39,7 @@ void *worker(){
         while(ctx == NULL) {
             pthread_cond_wait(&global_queue_ready, &global_queue_lock);
             ctx = gs_globalmq_pop();
+//            printf("thread %ud weekup!\n", (unsigned int)pthread_self());
         }
         pthread_mutex_unlock(&global_queue_lock);
         ctx->main_coroutine = main_coroutine;
@@ -46,19 +47,27 @@ void *worker(){
     }
 }
 
+int enter = 0;
 void *callbackSavin(gs_ctx *ctx, gs_msg *msg) {
+    enter++;
+    printf("thread id: %lu\n", (unsigned long)pthread_self());
 //    printf("hello from Savin, type: %d, from: %s, to: %s, msg: %s\n",
 //           msg->type, msg->from, msg->to, msg->data);
+    if (enter == 2) {
+        printf("reenter\n");
+    }
+    printf("handler: %s ", "savin");
     printf("type: %d ", msg->type);
-    printf("from: %s ", msg->from);
-    printf("to: %s ", msg->to);
+    printf("from: %d ", msg->from);
+    printf("to: %d ", msg->to);
     printf("data: %s\n", (char *)msg->data);
     long long int start = mstime();
-    long long int times = 100000;
+    long long int times = 1000000;
     int count = 0;
+    int target = gs_id_by_name("max");
     while (++count < times) {
-        gs_actor_call(ctx, "max", (void *)"3");
-//        gs_actor_cast(ctx, "max", (void *)"3");
+        gs_actor_call(ctx, target, (void *)"3");
+//        gs_actor_cast(ctx, target, (void *)"3");
     }
     printf("count: %lld\n", times);
     long long int stop = mstime();
@@ -68,21 +77,26 @@ void *callbackSavin(gs_ctx *ctx, gs_msg *msg) {
     return (void *)"savin reply";
 }
 
+int ccc = 0;
 void *callbackMax(gs_ctx *ctx, gs_msg *msg) {
 //    printf("hello from Max, type: %d, from: %s, to: %s, msg: %s\n",
 //           ctx->current_msg->type,
 //           ctx->current_msg->from,
 //           ctx->current_msg->to,
 //           (char *)ctx->current_msg->data);
+    ccc++;
+    if (ccc >= 1000000) {
+        printf("hello from callbackmax\n");
+    }
     return (void *)"max reply";
 }
 
 void *test() {
-    gs_actor_create("max", callbackMax);
-    gs_actor_create("savin", callbackSavin);
+    gs_ctx *max = gs_actor_create("max", callbackMax);
+    gs_ctx *savin = gs_actor_create("savin", callbackSavin);
     
-    gs_actor_send_msg("fake", "max", "1", MSG_TYPE_CAST);
-    gs_actor_send_msg("fake", "savin", "2", MSG_TYPE_CAST);
+    gs_actor_send_msg(-1, max->id, "1", MSG_TYPE_CAST);
+    gs_actor_send_msg(-1, savin->id, "2", MSG_TYPE_CAST);
     
     return (void *)0;
 }

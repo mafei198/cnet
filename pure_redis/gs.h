@@ -1,8 +1,8 @@
 #include "gs_coroutine.h"
 
 typedef struct gs_msg {
-  const char *from; // msg sender
-  const char *to; // msg receiver
+  int from; // msg sender
+  int to; // msg receiver
   int type; // call,cast
   void *data;
 } gs_msg;
