@@ -138,9 +138,8 @@ int gs_mq_pop(gs_ctx *ctx, gs_msg *msg) {
         if (ctx->head == ctx->tail) {
             ctx->head = 0;
             ctx->tail = 0;
-            gs_msg *queue = malloc(sizeof(gs_msg) * DEFAULT_MQ_SIZE);
             free(ctx->queue);
-            ctx->queue = queue;
+            ctx->queue = malloc(sizeof(gs_msg) * DEFAULT_MQ_SIZE);
             is_empty = 1;
         }
     } else {

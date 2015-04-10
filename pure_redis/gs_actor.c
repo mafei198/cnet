@@ -140,18 +140,18 @@ void gs_actor_cast(gs_ctx *ctx, int target, void *data) {
 }
 
 void gs_actor_handle_msg(gs_ctx *ctx) {
-    gs_msg msg;
-    int is_empty = gs_mq_pop(ctx, &msg);
+    gs_msg *msg = malloc(sizeof(*msg));
+    int is_empty = gs_mq_pop(ctx, msg);
     
     if (&msg) {
-        ctx->current_msg = &msg;
+        ctx->current_msg = msg;
 #ifdef LIBCORO
         coro_transfer(&ctx->main_coroutine, &ctx->corotine);
 #elif LIBTASK
         contextswitch(ctx->main_coroutine, ctx->corotine);
 #endif
     }
-//    free(msg.data);
+    free(msg);
     ctx->current_msg = NULL;
     
     if (ctx->status == CTX_STATUS_BE_BUSY) {

@@ -66,8 +66,8 @@ void *callbackSavin(gs_ctx *ctx, gs_msg *msg) {
     int count = 0;
     int target = gs_id_by_name("max");
     while (++count < times) {
-        gs_actor_call(ctx, target, (void *)"3");
-//        gs_actor_cast(ctx, target, (void *)"3");
+//        gs_actor_call(ctx, target, (void *)"3");
+        gs_actor_cast(ctx, target, (void *)"3");
     }
     printf("count: %lld\n", times);
     long long int stop = mstime();
@@ -84,10 +84,6 @@ void *callbackMax(gs_ctx *ctx, gs_msg *msg) {
 //           ctx->current_msg->from,
 //           ctx->current_msg->to,
 //           (char *)ctx->current_msg->data);
-    ccc++;
-    if (ccc >= 1000000) {
-        printf("hello from callbackmax\n");
-    }
     return (void *)"max reply";
 }
 
