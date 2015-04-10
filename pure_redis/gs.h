@@ -1,8 +1,8 @@
 #include "gs_coroutine.h"
 
 typedef struct gs_msg {
-  const char *from; // msg sender
-  const char *to; // msg receiver
+  int from; // msg sender
+  int to; // msg receiver
   int type; // call,cast
   void *data;
 } gs_msg;
@@ -22,8 +22,13 @@ typedef struct gs_ctx {
     gs_msg *queue;
     gs_msg *current_msg;
     struct gs_ctx *next;
+#ifdef LIBTASK
+    Task *main_coroutine;
+    Task *corotine;
+#elif LIBCORO
     coro_context main_coroutine;
     coro_context corotine;
+#endif
 } gs_ctx;
 
 typedef void *(*gs_cb)(struct gs_ctx *ctx, gs_msg *msg);

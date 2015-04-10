@@ -33,9 +33,6 @@ void gs_globalmq_push(gs_ctx * ctx) {
         q->head = q->tail = ctx;
     }
     UNLOCK(q->lock);
-    if (ctx) {
-        printf("msg_pushed: %d\n", ++msg_pushed);
-    }
     pthread_cond_signal(&global_queue_ready);
 }
 
@@ -56,11 +53,6 @@ gs_ctx *gs_globalmq_pop() {
         assert(!q->tail);
     }
     UNLOCK(q->lock);
-    
-    if (ctx) {
-        printf("msg_poped: %d\n", ++msg_poped);
-        printf("msg: %s\n", (char *)ctx->queue[0].data);
-    }
     
     return ctx;
 }
@@ -127,7 +119,7 @@ void gs_mq_insert(gs_ctx *ctx, gs_msg *msg) {
     }
     ctx->queue[ctx->head] = *msg;
     
-    if (ctx->status == CTX_STATUS_WAIT_REPLY) {
+    if (ctx->status == CTX_STATUS_OUT_GLOBAL) {
         gs_globalmq_push(ctx);
     }
     UNLOCK(ctx->lock);
@@ -146,9 +138,8 @@ int gs_mq_pop(gs_ctx *ctx, gs_msg *msg) {
         if (ctx->head == ctx->tail) {
             ctx->head = 0;
             ctx->tail = 0;
-            gs_msg *queue = malloc(sizeof(gs_msg) * DEFAULT_MQ_SIZE);
             free(ctx->queue);
-            ctx->queue = queue;
+            ctx->queue = malloc(sizeof(gs_msg) * DEFAULT_MQ_SIZE);
             is_empty = 1;
         }
     } else {

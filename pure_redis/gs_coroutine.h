@@ -8,11 +8,8 @@
 
 #ifdef LIBCORO
 #include "coro.h"
-#else
-#include "pure_libtask/task.h"
-typedef Task* coro_context;
-#endif
-
-void gs_coro_transfer(coro_context from, coro_context to);
-void gs_coro_switch(coro_context from, coro_context to);
 coro_context gs_coro_create(void (*callback)(void *), void *arg, int stack_size);
+#elif LIBTASK
+#include "pure_libtask/task.h"
+Task *gs_coro_create(void (*callback)(void *), void *arg, int stack_size);
+#endif

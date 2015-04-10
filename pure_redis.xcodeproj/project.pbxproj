@@ -31,9 +31,9 @@
 		92C514B11AD2895A00AAFF11 /* zmalloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 92C5149A1AD2895A00AAFF11 /* zmalloc.c */; };
 		92F40AA61AD67F6700F69E1D /* asm.S in Sources */ = {isa = PBXBuildFile; fileRef = 92F40A9D1AD67F6700F69E1D /* asm.S */; };
 		92F40AA71AD67F6700F69E1D /* context.c in Sources */ = {isa = PBXBuildFile; fileRef = 92F40A9E1AD67F6700F69E1D /* context.c */; };
-		92F40AA91AD67F6700F69E1D /* print.c in Sources */ = {isa = PBXBuildFile; fileRef = 92F40AA21AD67F6700F69E1D /* print.c */; };
 		92F40AAA1AD67F6700F69E1D /* task.c in Sources */ = {isa = PBXBuildFile; fileRef = 92F40AA31AD67F6700F69E1D /* task.c */; };
 		92F40AAD1AD6811900F69E1D /* gs_coroutine.c in Sources */ = {isa = PBXBuildFile; fileRef = 92F40AAC1AD6811900F69E1D /* gs_coroutine.c */; };
+		92F79C121AD7ADF500236531 /* print.c in Sources */ = {isa = PBXBuildFile; fileRef = 92F79C111AD7ADF500236531 /* print.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -92,12 +92,16 @@
 		92F40A9E1AD67F6700F69E1D /* context.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = context.c; sourceTree = "<group>"; };
 		92F40AA01AD67F6700F69E1D /* mips-ucontext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "mips-ucontext.h"; sourceTree = "<group>"; };
 		92F40AA11AD67F6700F69E1D /* power-ucontext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "power-ucontext.h"; sourceTree = "<group>"; };
-		92F40AA21AD67F6700F69E1D /* print.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = print.c; sourceTree = "<group>"; };
 		92F40AA31AD67F6700F69E1D /* task.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = task.c; sourceTree = "<group>"; };
 		92F40AA41AD67F6700F69E1D /* task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = task.h; sourceTree = "<group>"; };
 		92F40AA51AD67F6700F69E1D /* taskimpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = taskimpl.h; sourceTree = "<group>"; };
 		92F40AAB1AD680C500F69E1D /* gs_coroutine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gs_coroutine.h; sourceTree = "<group>"; };
 		92F40AAC1AD6811900F69E1D /* gs_coroutine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gs_coroutine.c; sourceTree = "<group>"; };
+		92F79C0D1AD7998B00236531 /* utarray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utarray.h; sourceTree = "<group>"; };
+		92F79C0E1AD7998B00236531 /* uthash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uthash.h; sourceTree = "<group>"; };
+		92F79C0F1AD7998B00236531 /* utlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utlist.h; sourceTree = "<group>"; };
+		92F79C101AD7998B00236531 /* utstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utstring.h; sourceTree = "<group>"; };
+		92F79C111AD7ADF500236531 /* print.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = print.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +143,7 @@
 		92C5146F1AD2893E00AAFF11 /* pure_redis */ = {
 			isa = PBXGroup;
 			children = (
+				92F79C0C1AD7997D00236531 /* uthash */,
 				92F40A9A1AD67F6700F69E1D /* pure_libtask */,
 				92C5147D1AD2895A00AAFF11 /* redis_data_structure */,
 				92B498791AD52E38007CE01F /* libcoro */,
@@ -198,12 +203,23 @@
 				92F40A9E1AD67F6700F69E1D /* context.c */,
 				92F40AA01AD67F6700F69E1D /* mips-ucontext.h */,
 				92F40AA11AD67F6700F69E1D /* power-ucontext.h */,
-				92F40AA21AD67F6700F69E1D /* print.c */,
+				92F79C111AD7ADF500236531 /* print.c */,
 				92F40AA31AD67F6700F69E1D /* task.c */,
 				92F40AA41AD67F6700F69E1D /* task.h */,
 				92F40AA51AD67F6700F69E1D /* taskimpl.h */,
 			);
 			path = pure_libtask;
+			sourceTree = "<group>";
+		};
+		92F79C0C1AD7997D00236531 /* uthash */ = {
+			isa = PBXGroup;
+			children = (
+				92F79C0D1AD7998B00236531 /* utarray.h */,
+				92F79C0E1AD7998B00236531 /* uthash.h */,
+				92F79C0F1AD7998B00236531 /* utlist.h */,
+				92F79C101AD7998B00236531 /* utstring.h */,
+			);
+			name = uthash;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -262,6 +278,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92F79C121AD7ADF500236531 /* print.c in Sources */,
 				92B4987C1AD52E4A007CE01F /* coro.c in Sources */,
 				92C514AA1AD2895A00AAFF11 /* t_hash.c in Sources */,
 				92C514AD1AD2895A00AAFF11 /* t_string.c in Sources */,
@@ -276,7 +293,6 @@
 				92C514A81AD2895A00AAFF11 /* reply.c in Sources */,
 				92C514B01AD2895A00AAFF11 /* ziplist.c in Sources */,
 				92C514AC1AD2895A00AAFF11 /* t_set.c in Sources */,
-				92F40AA91AD67F6700F69E1D /* print.c in Sources */,
 				92C514A41AD2895A00AAFF11 /* intset.c in Sources */,
 				92F40AA61AD67F6700F69E1D /* asm.S in Sources */,
 				92F40AAA1AD67F6700F69E1D /* task.c in Sources */,
@@ -375,6 +391,7 @@
 				GCC_VERSION = "";
 				OTHER_CFLAGS = (
 					"-DCORO_PTHREAD",
+					"-DLIBTASK",
 					"-DLIBCORO_",
 				);
 				OTHER_CODE_SIGN_FLAGS = "";
@@ -388,6 +405,7 @@
 				GCC_VERSION = "";
 				OTHER_CFLAGS = (
 					"-DCORO_PTHREAD",
+					"-DLIBTASK",
 					"-DLIBCORO_",
 				);
 				OTHER_CODE_SIGN_FLAGS = "";

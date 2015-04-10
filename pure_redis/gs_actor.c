@@ -1,39 +1,83 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "redis_data_structure/redis.h"
+#include <assert.h>
 #include "gs.h"
 #include "gs_mq.h"
 #include "gs_actor.h"
+#include "uthash.h"
 
 static int ACTOR_ID = 0;
-static gs_ctx *CONTAINER[10];
 
-extern redisClient *sharedRDB;
+struct actor {
+    int id;
+    gs_ctx *ctx;
+    UT_hash_handle hh;
+};
 
-void register_ctx(const char *name, gs_ctx *ctx) {
-    LOCK(sharedRDB->lock);
-    CONTAINER[ctx->id] = ctx;
-    redisCommand(sharedRDB, "SET %s %ld", name, (intptr_t)ctx);
-    UNLOCK(sharedRDB->lock);
+struct name_map {
+    char *name;
+    int id;
+    UT_hash_handle hh;
+};
+
+struct actor *actors = NULL;
+struct name_map *named_ids = NULL;
+int actor_lock = 0;
+int named_lock = 0;
+
+void register_ctx(gs_ctx *ctx) {
+    LOCK(actor_lock);
+    struct actor *v;
+    v = malloc(sizeof(struct actor));
+    v->ctx = ctx;
+    v->id = ctx->id;
+    HASH_ADD_INT(actors, id, v);
+    UNLOCK(actor_lock);
+    
+    LOCK(named_lock);
+    struct name_map *value;
+    value = malloc(sizeof(struct name_map));
+    value->name = malloc(strlen(ctx->name));
+    strcpy(value->name, ctx->name);
+    value->id = ctx->id;
+    HASH_ADD_STR(named_ids, name, value);
+    UNLOCK(named_lock);
 }
 
-gs_ctx *gs_ctx_by_name(const char *name) {
-    LOCK(sharedRDB->lock);
-    redisCommand(sharedRDB, "GET %s", name);
-    gs_ctx *ctx = (gs_ctx *)atol(sharedRDB->response->str);
-    UNLOCK(sharedRDB->lock);
-    return ctx;
+gs_ctx *gs_ctx_by_id(int id) {
+    LOCK(actor_lock);
+    struct actor *v;
+    HASH_FIND_INT(actors, &id, v);
+    UNLOCK(actor_lock);
+    return v->ctx;
+}
+
+int gs_id_by_name(const char *name) {
+    LOCK(named_lock);
+    struct name_map *v;
+    HASH_FIND_STR(named_ids, name, v);
+    UNLOCK(named_lock);
+    return v->id;
 }
 
 void callback(void *arg) {
     gs_ctx *ctx = arg;
-    gs_msg *msg = ctx->current_msg;
     while (1) {
+        gs_msg *msg = ctx->current_msg;
+        assert(ctx->id == msg->to);
+        assert(ctx->id != msg->from);
+        int type = msg->type;
+        int from = msg->from;
         void *data = ctx->cb(ctx, msg);
-        if (msg->type == MSG_TYPE_CALL) {
-            gs_actor_send_msg(ctx->name, msg->from, data, MSG_TYPE_REPLY);
+        if (type == MSG_TYPE_CALL) {
+            assert(from != -1);
+            gs_actor_send_msg(ctx->id, from, data, MSG_TYPE_REPLY);
         }
-        gs_coro_transfer(ctx->corotine, ctx->main_coroutine);
+#ifdef LIBCORO
+        coro_transfer(&ctx->corotine, &ctx->main_coroutine);
+#elif LIBTASK
+        contextswitch(ctx->corotine, ctx->main_coroutine);
+#endif
     }
 }
 
@@ -51,7 +95,7 @@ gs_ctx *gs_actor_create(const char *name, void*(* cb)(gs_ctx *, gs_msg *)) {
     ctx->next = NULL;
     ctx->corotine = gs_coro_create(callback, ctx, 1024);
     
-    register_ctx(name, ctx);
+    register_ctx(ctx);
     return ctx;
 }
 
@@ -60,40 +104,49 @@ void gs_actor_destroy(gs_ctx *ctx) {
     free(ctx);
 }
 
-gs_msg *gs_actor_send_msg(const char *from, const char *to, void *data, char type) {
-    gs_ctx *target_ctx = gs_ctx_by_name(to);
+gs_msg gs_actor_send_msg(int from, int to, void *data, char type) {
+    assert(from != to);
+    gs_ctx *target_ctx = gs_ctx_by_id(to);
     
-    gs_msg *msg = malloc(sizeof(gs_msg));
-    msg->from = from;
-    msg->to = to;
-    msg->type = type;
-    msg->data = data;
+    gs_msg msg;
+    msg.from = from;
+    msg.to = to;
+    msg.type = type;
+    msg.data = data;
     if (type == MSG_TYPE_REPLY) {
-        gs_mq_insert(target_ctx, msg);
+        gs_mq_insert(target_ctx, &msg);
     }else{
-        gs_mq_push(target_ctx, msg);
+        gs_mq_push(target_ctx, &msg);
     }
     return msg;
 }
 
-void *gs_actor_call(gs_ctx *ctx, const char *target, void *data) {
-    gs_actor_send_msg(ctx->name, target, data, MSG_TYPE_CALL);
+void *gs_actor_call(gs_ctx *ctx, int target, void *data) {
     ctx->status = CTX_STATUS_WAIT_REPLY;
-    gs_coro_transfer(ctx->corotine, ctx->main_coroutine);
+    gs_actor_send_msg(ctx->id, target, data, MSG_TYPE_CALL);
+#ifdef LIBCORO
+    coro_transfer(&ctx->corotine, &ctx->main_coroutine);
+#elif LIBTASK
+    contextswitch(ctx->corotine, ctx->main_coroutine);
+#endif
     return ctx->current_msg->data;
 }
 
-void gs_actor_cast(gs_ctx *ctx, const char *target, void *data) {
-    gs_actor_send_msg(ctx->name, target, data, MSG_TYPE_CAST);
+void gs_actor_cast(gs_ctx *ctx, int target, void *data) {
+    gs_actor_send_msg(ctx->id, target, data, MSG_TYPE_CAST);
 }
 
 void gs_actor_handle_msg(gs_ctx *ctx) {
-    gs_msg *msg = malloc(sizeof(gs_msg));
+    gs_msg *msg = malloc(sizeof(*msg));
     int is_empty = gs_mq_pop(ctx, msg);
     
-    if (msg) {
+    if (&msg) {
         ctx->current_msg = msg;
-        gs_coro_transfer(ctx->main_coroutine, ctx->corotine);
+#ifdef LIBCORO
+        coro_transfer(&ctx->main_coroutine, &ctx->corotine);
+#elif LIBTASK
+        contextswitch(ctx->main_coroutine, ctx->corotine);
+#endif
     }
     free(msg);
     ctx->current_msg = NULL;
@@ -112,5 +165,12 @@ void gs_actor_handle_msg(gs_ctx *ctx) {
         }
     }else{
         assert(ctx->status == CTX_STATUS_WAIT_REPLY);
+        LOCK(ctx->lock);
+        if (ctx->head == ctx->tail) {
+            ctx->status = CTX_STATUS_OUT_GLOBAL;
+        }else{
+            gs_globalmq_push(ctx);
+        }
+        UNLOCK(ctx->lock);
     }
 }

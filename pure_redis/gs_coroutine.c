@@ -18,20 +18,9 @@ coro_context gs_coro_create(void (*callback)(void *), void *arg, int stack_size)
     return ctx;
 }
 
-void gs_coro_transfer(coro_context from, coro_context to)
-{
-    coro_transfer(&from, &to);
-}
-
 #else
-coro_context gs_coro_create(void (*callback)(void *), void *arg, int stack_size)
+Task *gs_coro_create(void (*callback)(void *), void *arg, int stack_size)
 {
-    coro_context task = taskalloc(callback, arg, stack_size);
-    return task;
-}
-
-void gs_coro_transfer(coro_context from, coro_context to)
-{
-    contextswitch(from, to);
+    return taskalloc(callback, arg, stack_size);
 }
 #endif
