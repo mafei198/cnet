@@ -66,8 +66,8 @@ void *callbackSavin(gs_ctx *ctx, gs_msg *msg) {
     int count = 0;
     int target = gs_id_by_name("max");
     while (++count < times) {
-//        gs_actor_call(ctx, target, (void *)"3");
-        gs_actor_cast(ctx, target, (void *)"3");
+        gs_actor_call(ctx, target, (void *)"3");
+//        gs_actor_cast(ctx, target, (void *)"3");
     }
     printf("count: %lld\n", times);
     long long int stop = mstime();
