@@ -12,3 +12,9 @@ cnet是一个利用纯C实现的actor模式服务器引擎。
 1. 当main函数启动后：会根据当前服务器核心数分配对应数量的worker线程（pthread）
 2. 启动的线程利用pthread_cond_wait阻塞在全局执行队列
 3. 当actor的msg_queue收到消息后，会把actor放进全局执行队列并通知被阻塞的worker线程，唤醒的worker从全局队列pop出actor并调用其callback函数
+
+####性能测试（macbook pro 2 GHz Intel Core i7）
+* 单线程同步call：100w/s
+* 单线程异步cast：500w/s
+* 8线程同步call：12w/s （性能瓶颈在pthread_cond_wait的唤醒延迟）
+* 8线程异步cast：300w/s
