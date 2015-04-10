@@ -27,8 +27,8 @@ gs_ctx *gs_ctx_by_name(const char *name) {
 
 void callback(void *arg) {
     gs_ctx *ctx = arg;
-    gs_msg *msg = ctx->current_msg;
     while (1) {
+        gs_msg *msg = ctx->current_msg;
         void *data = ctx->cb(ctx, msg);
         if (msg->type == MSG_TYPE_CALL) {
             gs_actor_send_msg(ctx->name, msg->from, data, MSG_TYPE_REPLY);
@@ -81,12 +81,12 @@ gs_msg *gs_actor_send_msg(const char *from, const char *to, void *data, char typ
 }
 
 void *gs_actor_call(gs_ctx *ctx, const char *target, void *data) {
-    gs_actor_send_msg(ctx->name, target, data, MSG_TYPE_CALL);
     ctx->status = CTX_STATUS_WAIT_REPLY;
+    gs_actor_send_msg(ctx->name, target, data, MSG_TYPE_CALL);
 #ifdef LIBCORO
-        coro_transfer(&ctx->corotine, &ctx->main_coroutine);
+    coro_transfer(&ctx->corotine, &ctx->main_coroutine);
 #elif LIBTASK
-        contextswitch(ctx->corotine, ctx->main_coroutine);
+    contextswitch(ctx->corotine, ctx->main_coroutine);
 #endif
     return ctx->current_msg->data;
 }
@@ -124,5 +124,12 @@ void gs_actor_handle_msg(gs_ctx *ctx) {
         }
     }else{
         assert(ctx->status == CTX_STATUS_WAIT_REPLY);
+        LOCK(ctx->lock);
+        if (ctx->head == ctx->tail) {
+            ctx->status = CTX_STATUS_OUT_GLOBAL;
+        }else{
+            gs_globalmq_push(ctx);
+        }
+        UNLOCK(ctx->lock);
     }
 }
