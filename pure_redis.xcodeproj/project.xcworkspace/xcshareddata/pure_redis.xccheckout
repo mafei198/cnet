@@ -10,14 +10,14 @@
 	<string>pure_redis</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>DF6E6C8F85A10EEFD11B160A5A8A1527099176A7</key>
+		<key>55502A6DAF21E2212FF0BC5FD598FDA812EC99BF</key>
 		<string>https://github.com/mafei198/cnet.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>pure_redis.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>DF6E6C8F85A10EEFD11B160A5A8A1527099176A7</key>
+		<key>55502A6DAF21E2212FF0BC5FD598FDA812EC99BF</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
@@ -25,14 +25,14 @@
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>DF6E6C8F85A10EEFD11B160A5A8A1527099176A7</string>
+	<string>55502A6DAF21E2212FF0BC5FD598FDA812EC99BF</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>DF6E6C8F85A10EEFD11B160A5A8A1527099176A7</string>
+			<string>55502A6DAF21E2212FF0BC5FD598FDA812EC99BF</string>
 			<key>IDESourceControlWCCName</key>
 			<string>pure_redis</string>
 		</dict>
