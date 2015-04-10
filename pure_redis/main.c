@@ -50,7 +50,7 @@ void *worker(){
 int enter = 0;
 void *callbackSavin(gs_ctx *ctx, gs_msg *msg) {
     enter++;
-    printf("thread id: %lu\n", (unsigned long)pthread_self());
+//    printf("thread id: %lu\n", (unsigned long)pthread_self());
 //    printf("hello from Savin, type: %d, from: %s, to: %s, msg: %s\n",
 //           msg->type, msg->from, msg->to, msg->data);
     if (enter == 2) {
@@ -87,12 +87,26 @@ void *callbackMax(gs_ctx *ctx, gs_msg *msg) {
     return (void *)"max reply";
 }
 
+void *callbackChat(gs_ctx *ctx, gs_msg *msg) {
+//    printf("hello from Max, type: %d, from: %s, to: %s, msg: %s\n",
+//           ctx->current_msg->type,
+//           ctx->current_msg->from,
+//           ctx->current_msg->to,
+//           (char *)ctx->current_msg->data);
+    return (void *)"chat reply";
+}
+
 void *test() {
     gs_ctx *max = gs_actor_create("max", callbackMax);
     gs_ctx *savin = gs_actor_create("savin", callbackSavin);
+    gs_ctx *chat = gs_actor_create("chat", callbackChat);
     
     gs_actor_send_msg(-1, max->id, "1", MSG_TYPE_CAST);
     gs_actor_send_msg(-1, savin->id, "2", MSG_TYPE_CAST);
+    
+//    for (int i=0; i<1000000; i++) {
+//        gs_actor_send_msg(-1, chat->id, "3", MSG_TYPE_CAST);
+//    }
     
     return (void *)0;
 }

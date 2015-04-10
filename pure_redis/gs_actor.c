@@ -112,9 +112,6 @@ gs_msg gs_actor_send_msg(int from, int to, void *data, char type) {
     msg.from = from;
     msg.to = to;
     msg.type = type;
-//    size_t size = sizeof(*data);
-//    msg.data = malloc(size);
-//    memcpy(msg.data, data, size);
     msg.data = data;
     if (type == MSG_TYPE_REPLY) {
         gs_mq_insert(target_ctx, &msg);
